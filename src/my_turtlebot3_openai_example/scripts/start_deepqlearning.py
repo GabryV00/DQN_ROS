@@ -271,7 +271,7 @@ if __name__ == '__main__':
     l.sort()
     
     min_rew = min(reward_for_episode)
-    reward_for_episode = [x + min_rew for x in reward_for_episode]
+    reward_for_episode = [x - min_rew for x in reward_for_episode]
 
     timestamp = str(datetime.datetime.now()).replace(' ', '_')
     outdir = f"../simulation_ws/training_results/results-{timestamp}"
