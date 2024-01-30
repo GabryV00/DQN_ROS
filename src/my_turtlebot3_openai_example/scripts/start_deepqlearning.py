@@ -47,7 +47,9 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
         self.fc1 = nn.Linear(inputs, 64)
         self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(128, 128)
+        self.fc4 = nn.Linear(128, 64)
+        self.fc5 = nn.Linear(64, 64)
         self.head = nn.Linear(64, outputs)
 
     # Called with either one element to determine next action, or a batch
@@ -57,6 +59,8 @@ class DQN(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
+        x = F.relu(self.fc4(x))
+        x = F.relu(self.fc5(x))
         return self.head(x)
 
 
@@ -300,7 +304,7 @@ if __name__ == '__main__':
     plt.savefig(f"{outdir}/plot.png")
     
     # print("Parameters: a="+str)
-    rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
-    rospy.loginfo("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
+    # rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
+    # rospy.loginfo("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
     env.close()
