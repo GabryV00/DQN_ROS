@@ -269,6 +269,9 @@ if __name__ == '__main__':
     l = last_time_steps.tolist()
     l.sort()
     
+    min_rew = min(reward_for_episode)
+    reward_for_episode = [x + min_rew for x in reward_for_episode]
+
     timestamp = str(datetime.datetime.now()).replace(' ', '_')
     with open(f"../simulation_ws/src/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": policy_net, 
