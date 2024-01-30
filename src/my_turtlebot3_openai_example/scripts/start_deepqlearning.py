@@ -287,7 +287,7 @@ if __name__ == '__main__':
     ax[1].plot(list(range(last_time_steps.shape[0])), last_time_steps)
     ax[2].plot(list(range(last_time_steps.shape[0])), last_time_steps)
     ax[2].plot(list(range(len(reward_for_episode))), reward_for_episode)
-    plt.show()
+    # plt.show()
     plt.savefig(f"{outdir}/plot.png")
     
     # print("Parameters: a="+str)
