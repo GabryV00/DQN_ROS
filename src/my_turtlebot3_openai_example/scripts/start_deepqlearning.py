@@ -273,7 +273,7 @@ if __name__ == '__main__':
     reward_for_episode = [x + min_rew for x in reward_for_episode]
 
     timestamp = str(datetime.datetime.now()).replace(' ', '_')
-    with open(f"../simulation_ws/src/results-{timestamp}.json", "w") as f:
+    with open(f"../simulation_ws/training_results/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": policy_net, 
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
                       "n_episodes":n_episodes, "batch_size":batch_size}
