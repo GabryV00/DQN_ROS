@@ -283,11 +283,20 @@ if __name__ == '__main__':
         json.dump(dictionary, f)
     
     fig, ax = plt.subplots(3)
-    ax[0].plot(list(range(len(reward_for_episode))), reward_for_episode)
-    ax[1].plot(list(range(last_time_steps.shape[0])), last_time_steps)
-    ax[2].plot(list(range(last_time_steps.shape[0])), last_time_steps)
-    ax[2].plot(list(range(len(reward_for_episode))), reward_for_episode)
-    # plt.show()
+    ax[0].plot(range(1, len(reward_for_episode)+1), reward_for_episode, color="blue")
+    ax[0].set_title("Reward for episode")
+
+    ax[1].plot(range(1, last_time_steps.shape[0]+1), last_time_steps, color="orange")
+    ax[1].set_title("Last time per episode")
+
+    ax[2].plot(range(1, len(reward_for_episode)+1), reward_for_episode, color="blue")
+    ax[2].plot(range(1, last_time_steps.shape[0]+1), last_time_steps, color="orange")
+    ax[2].set_title("Combined plots")
+
+    plt.setp(ax, xticks=range(1, len(reward_for_episode)+1))
+    plt.tight_layout()
+
+    plt.show(block=False)
     plt.savefig(f"{outdir}/plot.png")
     
     # print("Parameters: a="+str)
