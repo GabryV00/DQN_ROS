@@ -2,13 +2,14 @@
 
 import gym
 import json
-import math
 import numpy
+import math
 import random
 import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
 import datetime
+import os
 
 import time
 from gym import wrappers
@@ -138,7 +139,7 @@ if __name__ == '__main__':
     # Set the logging system
     rospack = rospkg.RosPack()
     pkg_path = rospack.get_path('my_turtlebot3_openai_example')
-    outdir = pkg_path + '/training_results'
+    # outdir = pkg_path + '/training_results'
     #env = wrappers.Monitor(env, outdir, force=True)
     #env = Monitor(env, outdir, allow_early_resets=True)
     rospy.loginfo("Monitor Wrapper started")
@@ -273,7 +274,9 @@ if __name__ == '__main__':
     reward_for_episode = [x + min_rew for x in reward_for_episode]
 
     timestamp = str(datetime.datetime.now()).replace(' ', '_')
-    with open(f"../simulation_ws/training_results/results-{timestamp}.json", "w") as f:
+    outdir = f"../simulation_ws/training_results/results-{timestamp}"
+    os.mkdir(outdir)
+    with open(f"{outdir}/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net), 
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
                       "n_episodes":n_episodes, "batch_size":batch_size}
@@ -282,9 +285,10 @@ if __name__ == '__main__':
     fig, ax = plt.subplots(3)
     ax[0].plot(list(range(len(reward_for_episode))), reward_for_episode)
     ax[1].plot(list(range(last_time_steps.shape[0])), last_time_steps)
-    ax[2].plot(list(range(len(reward_for_episode))), reward_for_episode)
     ax[2].plot(list(range(last_time_steps.shape[0])), last_time_steps)
+    ax[2].plot(list(range(len(reward_for_episode))), reward_for_episode)
     plt.show()
+    plt.savefig(f"{outdir}/plot.png")
     
     # print("Parameters: a="+str)
     rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
