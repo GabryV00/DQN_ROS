@@ -2,12 +2,13 @@
 
 import gym
 import json
-import numpy
 import math
+import numpy
 import random
 import matplotlib.pyplot as plt
 from collections import namedtuple, deque
 from itertools import count
+import datetime
 
 import time
 from gym import wrappers
@@ -268,7 +269,8 @@ if __name__ == '__main__':
     l = last_time_steps.tolist()
     l.sort()
     
-    with open("./results.json", "w") as f:
+    timestamp = str(datetime.datetime.now()).replace(' ', '_')
+    with open(f"../simulation_ws/src/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net), 
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
                       "n_episodes":n_episodes, "batch_size":batch_size}
