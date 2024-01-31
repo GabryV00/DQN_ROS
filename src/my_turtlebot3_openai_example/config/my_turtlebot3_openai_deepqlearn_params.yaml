@@ -1,20 +1,21 @@
 turtlebot3: #namespace
 
     task_and_robot_environment_name: 'TurtleBot3World-v0'
-    ros_ws_abspath: "/home/gv/simulation_ws"
+    ros_ws_abspath: "/home/gz/simulation_ws"
     running_step: 0.04 # amount of time the control will be executed
     pos_step: 0.016     # increment in position for each command
     
     #dqn parameters
-    gamma: 0.999
-    epsilon_start: 0.9
-    epsilon_end: 0.05
-    epsilon_decay: 200
-    n_episodes: 3
-    target_update: 10
-    batch_size: 128
+    gamma: 0.999        # discount rate default 0.999
+    epsilon_start: 0.9  # exploration rate default 0.9
+    epsilon_end: 0.25   # default 0.5
+    epsilon_decay: 200  # default 200
+    n_episodes: 1      # default 30
+    target_update: 10   # default 10
+    batch_size: 512     # default 128
 
     running_step: 0.06 # Time for each step
+    learning_rate: 0.01 # default 0.01
 
     
 

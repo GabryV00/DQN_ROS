@@ -286,7 +286,7 @@ if __name__ == '__main__':
     with open(f"{outdir}/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net), 
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
-                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer":optimizer, "learning_rate":learning_rate}
+                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer":str(optimizer), "learning_rate":learning_rate}
         json.dump(dictionary, f)
     
     fig, ax = plt.subplots(3)
