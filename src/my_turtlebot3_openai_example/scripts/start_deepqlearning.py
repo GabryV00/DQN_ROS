@@ -47,10 +47,11 @@ class DQN(nn.Module):
         super(DQN, self).__init__()
         self.fc1 = nn.Linear(inputs, 64)
         self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128, 128)
-        self.fc4 = nn.Linear(128, 64)
-        self.fc5 = nn.Linear(64, 64)
-        self.head = nn.Linear(64, outputs)
+        self.fc3 = nn.Linear(128, 256)
+        self.fc4 = nn.Linear(256, 128)
+        self.fc5 = nn.Linear(128, 64)
+        self.fc6 = nn.Linear(64, 32)
+        self.head = nn.Linear(32, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
@@ -61,6 +62,7 @@ class DQN(nn.Module):
         x = F.relu(self.fc3(x))
         x = F.relu(self.fc4(x))
         x = F.relu(self.fc5(x))
+        x = F.relu(self.fc6(x))
         return self.head(x)
 
 
@@ -160,6 +162,7 @@ if __name__ == '__main__':
     n_episodes = rospy.get_param("/turtlebot3/n_episodes")
     batch_size = rospy.get_param("/turtlebot3/batch_size")
     target_update = rospy.get_param("/turtlebot3/target_update")
+    learning_rate = rospy.get_param("/turtlebot3/learning_rate")
 
     running_step = rospy.get_param("/turtlebot3/running_step")
 
@@ -180,7 +183,7 @@ if __name__ == '__main__':
     target_net.load_state_dict(policy_net.state_dict())
     target_net.eval()
 
-    optimizer = optim.RMSprop(policy_net.parameters())
+    optimizer = optim.RMSprop(policy_net.parameters(), lr=learning_rate)
     memory = ReplayMemory(10000)
     episode_durations = []
     steps_done = 0
@@ -283,7 +286,7 @@ if __name__ == '__main__':
     with open(f"{outdir}/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net), 
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
-                      "n_episodes":n_episodes, "batch_size":batch_size}
+                      "n_episodes":n_episodes, "batch_size":batch_size, "learning_rate":learning_rate}
         json.dump(dictionary, f)
     
     fig, ax = plt.subplots(3)
