@@ -1,0 +1,6 @@
+[submodule "src/openai_ros"]
+    path = src/openai_ros
+    url = git@github.com:gianzav/openai_ros.git
+[submodule "src/turtlebot3"]
+    path = src/turtlebot3
+    url = git@github.com:gianzav/turtlebot3_openai_ros.git
