@@ -162,7 +162,6 @@ if __name__ == '__main__':
     n_episodes = rospy.get_param("/turtlebot3/n_episodes")
     batch_size = rospy.get_param("/turtlebot3/batch_size")
     target_update = rospy.get_param("/turtlebot3/target_update")
-    learning_rate = rospy.get_param("/turtlebot3/learning_rate")
 
     running_step = rospy.get_param("/turtlebot3/running_step")
 
@@ -183,7 +182,7 @@ if __name__ == '__main__':
     target_net.load_state_dict(policy_net.state_dict())
     target_net.eval()
 
-    optimizer = optim.RMSprop(policy_net.parameters(), lr=learning_rate)
+    optimizer = optim.RMSprop(policy_net.parameters())
     memory = ReplayMemory(10000)
     episode_durations = []
     steps_done = 0
@@ -286,21 +285,25 @@ if __name__ == '__main__':
     with open(f"{outdir}/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net), 
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
-                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer":str(optimizer), "learning_rate":learning_rate}
+                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer": optimizer}
         json.dump(dictionary, f)
     
+
+    unit = round(len(reward_for_episode)/20)
+    x_values = [i*unit for i in range(1,21)]
+
     fig, ax = plt.subplots(3)
-    ax[0].plot(range(1, len(reward_for_episode)+1), reward_for_episode, color="blue")
+    ax[0].plot(x_values, reward_for_episode, color="blue")
     ax[0].set_title("Reward for episode")
 
-    ax[1].plot(range(1, last_time_steps.shape[0]+1), last_time_steps, color="orange")
+    ax[1].plot(x_values, last_time_steps, color="orange")
     ax[1].set_title("Last time per episode")
 
-    ax[2].plot(range(1, len(reward_for_episode)+1), reward_for_episode, color="blue")
-    ax[2].plot(range(1, last_time_steps.shape[0]+1), last_time_steps, color="orange")
+    ax[2].plot(x_values, reward_for_episode, color="blue")
+    ax[2].plot(x_values, last_time_steps, color="orange")
     ax[2].set_title("Combined plots")
 
-    plt.setp(ax, xticks=range(1, len(reward_for_episode)+1))
+    plt.setp(ax, xticks=x_values)
     plt.tight_layout()
 
     plt.show(block=False)
