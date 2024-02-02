@@ -175,7 +175,7 @@ if __name__ == '__main__':
 
     # Get number of actions from gym action space
     n_actions = env.action_space.n
-    n_observations = 360 #PARAMETRO CHE DEVE ESSERE UGUALE A QUELLO IN /src/openai_ros/openai_ros/src/openai_ros/task_envs/turtlebot3/config/turtlebot3_world.yaml
+    n_observations = 120 #PARAMETRO CHE DEVE ESSERE UGUALE A QUELLO IN /src/openai_ros/openai_ros/src/openai_ros/task_envs/turtlebot3/config/turtlebot3_world.yaml
 
     # initialize networks with input and output sizes
     policy_net = DQN(n_observations, n_actions).to(device)
