@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import sys
 import signal
 import gym
 import json
@@ -26,9 +27,53 @@ import torch.optim as optim
 import torch.nn.functional as F
 
 
-for sig in signal.valid_signals():
-    if (sig != 9):
-        signal.signal(sig, lambda s,f:print(f"+++ SIGNAL {s}+++"))
+reward_for_episode = []
+last_time_steps = numpy.ndarray(0)
+
+
+def save_data():
+    global reward_for_episode, last_time_steps
+
+    min_rew = min(reward_for_episode)
+    reward_for_episode = [x - min_rew for x in reward_for_episode]
+
+    timestamp = str(datetime.datetime.now()).replace(' ', '_')
+    outdir = f"../simulation_ws/training_results/results-{timestamp}"
+    os.mkdir(outdir)
+    with open(f"{outdir}/results-{timestamp}.json", "w") as f:
+        dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net),
+                      "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
+                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer": str(optimizer)}
+        json.dump(dictionary, f)
+
+
+    unit = round(len(reward_for_episode)/10)
+    x_values = [i*unit for i in range(1,11)]
+
+    fig, ax = plt.subplots(3)
+    ax[0].plot(range(1,len(reward_for_episode)+1), reward_for_episode, color="blue")
+    ax[0].set_title("Reward for episode")
+
+    ax[1].plot(range(1,len(reward_for_episode)+1), last_time_steps, color="orange")
+    ax[1].set_title("Last time per episode")
+
+    ax[2].plot(range(1,len(reward_for_episode)+1), reward_for_episode, color="blue")
+    ax[2].plot(range(1,len(reward_for_episode)+1), last_time_steps, color="orange")
+
+    ax[2].set_title("Combined plots")
+    plt.setp(ax, xticks=x_values)
+    plt.tight_layout()
+
+    plt.show(block=False)
+    plt.savefig(f"{outdir}/plot.png")
+
+
+def handler(sig, frame):
+    print("+++ TRAINIG INTERRUPTED, SAVING DATA +++")
+    save_data()
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handler)
 
 
 
@@ -136,8 +181,14 @@ def optimize_model(batch_size, gamma):
     optimizer.step()
 
 
+
+
+
+
 # import our training environment
 if __name__ == '__main__':
+    reward_for_episode = []
+    last_time_steps = numpy.ndarray(0)
 
     rospy.init_node('turtlebot3_world_qlearn', anonymous=True, log_level=rospy.WARN)
 
@@ -158,7 +209,6 @@ if __name__ == '__main__':
     #env = Monitor(env, outdir, allow_early_resets=True)
     rospy.loginfo("Monitor Wrapper started")
 
-    last_time_steps = numpy.ndarray(0)
 
     # Loads parameters from the ROS param server
     # Parameters are stored in a yaml file inside the config directory
@@ -198,7 +248,6 @@ if __name__ == '__main__':
     start_time = time.time()
     highest_reward = 0
 
-    reward_for_episode = []
 
     # Starts the main training loop: the one about the episodes to do
     for i_episode in range(n_episodes):
@@ -279,39 +328,8 @@ if __name__ == '__main__':
 
     l = last_time_steps.tolist()
     l.sort()
+    save_data()
 
-    min_rew = min(reward_for_episode)
-    reward_for_episode = [x - min_rew for x in reward_for_episode]
-
-    timestamp = str(datetime.datetime.now()).replace(' ', '_')
-    outdir = f"../simulation_ws/training_results/results-{timestamp}"
-    os.mkdir(outdir)
-    with open(f"{outdir}/results-{timestamp}.json", "w") as f:
-        dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net),
-                      "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
-                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer": str(optimizer)}
-        json.dump(dictionary, f)
-
-
-    unit = round(len(reward_for_episode)/10)
-    x_values = [i*unit for i in range(1,11)]
-
-    fig, ax = plt.subplots(3)
-    ax[0].plot(range(1,len(reward_for_episode)+1), reward_for_episode, color="blue")
-    ax[0].set_title("Reward for episode")
-
-    ax[1].plot(range(1,len(reward_for_episode)+1), last_time_steps, color="orange")
-    ax[1].set_title("Last time per episode")
-
-    ax[2].plot(range(1,len(reward_for_episode)+1), reward_for_episode, color="blue")
-    ax[2].plot(range(1,len(reward_for_episode)+1), last_time_steps, color="orange")
-
-    ax[2].set_title("Combined plots")
-    plt.setp(ax, xticks=x_values)
-    plt.tight_layout()
-
-    plt.show(block=False)
-    plt.savefig(f"{outdir}/plot.png")
 
     # print("Parameters: a="+str)
     # rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
