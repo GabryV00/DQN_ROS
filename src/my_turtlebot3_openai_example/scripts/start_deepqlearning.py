@@ -101,6 +101,13 @@ class DQN(nn.Module):
         self.fc1 = nn.Linear(inputs, 64)
         self.fc2 = nn.Linear(64, 128)
         self.fc3 = nn.Linear(128, 256)
+
+        self.lin1 = nn.Linear(256, 256)
+        self.lin2 = nn.Linear(256, 256)
+        self.lin3 = nn.Linear(256, 256)
+        self.lin4 = nn.Linear(256, 256)
+        self.lin5 = nn.Linear(256, 256)
+
         self.fc4 = nn.Linear(256, 128)
         self.fc5 = nn.Linear(128, 64)
         self.fc6 = nn.Linear(64, 32)
@@ -113,6 +120,13 @@ class DQN(nn.Module):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
+
+        x = F.relu(self.lin1(x))
+        x = F.relu(self.lin2(x))
+        x = F.relu(self.lin3(x))
+        x = F.relu(self.lin4(x))
+        x = F.relu(self.lin5(x))
+
         x = F.relu(self.fc4(x))
         x = F.relu(self.fc5(x))
         x = F.relu(self.fc6(x))

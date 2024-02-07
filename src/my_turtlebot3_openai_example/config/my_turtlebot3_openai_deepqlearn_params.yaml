@@ -9,14 +9,12 @@ turtlebot3: #namespace
     #dqn parameters
     gamma: 0.999        # discount rate default 0.999
     epsilon_start: 0.9  # exploration rate default 0.9
-    epsilon_end: 0.25   # default 0.5
-    epsilon_decay: 200  # default 200
-    n_episodes: 1      # default 30
-    target_update: 10   # default 10
-    batch_size: 512     # default 128
+    epsilon_end: 0.01   # default 0.05
+    epsilon_decay: 0.999   # default 200
+    n_episodes: 2000      # default 30
+    target_update: 500   # default 10
+    batch_size: 32     # default 128
 
-    running_step: 0.06 # Time for each step
-    learning_rate: 0.01 # default 0.01
-
-    
+    running_step: 0.06 # Time for each step default 0.06
+    learning_rate: 0.00025 # default 0.01
 
