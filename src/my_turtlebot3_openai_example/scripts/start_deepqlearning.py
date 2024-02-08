@@ -43,7 +43,7 @@ def save_data():
     with open(f"{outdir}/results-{timestamp}.json", "w") as f:
         dictionary = {"time": last_time_steps.tolist(), "rewards": reward_for_episode, "model": str(policy_net),
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
-                      "n_episodes":n_episodes, "batch_size":batch_size, "optimizer": str(optimizer)}
+                      "n_episodes":n_episodes, "batch_size":batch_size, "target_update":target_update, "optimizer": str(optimizer)}
         json.dump(dictionary, f)
 
 
@@ -98,9 +98,8 @@ class DQN(nn.Module):
 
     def __init__(self, inputs, outputs):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(inputs, 64)
-        self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128, 256)
+        self.fc1 = nn.Linear(inputs, 128)
+        self.fc2 = nn.Linear(128, 256)
 
         self.lin1 = nn.Linear(256, 256)
         self.lin2 = nn.Linear(256, 256)
@@ -119,7 +118,6 @@ class DQN(nn.Module):
         x = x.to(device)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.relu(self.fc3(x))
 
         x = F.relu(self.lin1(x))
         x = F.relu(self.lin2(x))
@@ -234,7 +232,7 @@ if __name__ == '__main__':
     n_episodes = rospy.get_param("/turtlebot3/n_episodes")
     batch_size = rospy.get_param("/turtlebot3/batch_size")
     target_update = rospy.get_param("/turtlebot3/target_update")
-
+    lr = rospy.get_param("/turtlebot3/learning_rate")
     running_step = rospy.get_param("/turtlebot3/running_step")
 
     # Initialises the algorithm that we are going to use for learning
@@ -254,7 +252,7 @@ if __name__ == '__main__':
     target_net.load_state_dict(policy_net.state_dict())
     target_net.eval()
 
-    optimizer = optim.RMSprop(policy_net.parameters())
+    optimizer = optim.RMSprop(policy_net.parameters(), lr=lr)
     memory = ReplayMemory(10000)
     episode_durations = []
     steps_done = 0
