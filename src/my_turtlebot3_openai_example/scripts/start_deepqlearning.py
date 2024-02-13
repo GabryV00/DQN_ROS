@@ -34,9 +34,6 @@ last_time_steps = numpy.ndarray(0)
 def save_data():
     global reward_for_episode, last_time_steps
 
-    min_rew = min(reward_for_episode)
-    reward_for_episode = [x - min_rew for x in reward_for_episode]
-
     timestamp = str(datetime.datetime.now()).replace(' ', '_')
     outdir = f"../simulation_ws/training_results/results-{timestamp}"
     os.mkdir(outdir)
@@ -45,6 +42,9 @@ def save_data():
                       "gamma": gamma, "epsilon_start":epsilon_start, "epsilon_end":epsilon_end, "epsilon_decay":epsilon_decay,
                       "n_episodes":n_episodes, "batch_size":batch_size, "target_update":target_update, "optimizer": str(optimizer)}
         json.dump(dictionary, f)
+
+    min_rew = min(reward_for_episode)
+    reward_for_episode = [x - min_rew for x in reward_for_episode]
 
 
     unit = round(len(reward_for_episode)/10)
@@ -64,7 +64,7 @@ def save_data():
     plt.setp(ax, xticks=x_values)
     plt.tight_layout()
 
-    plt.show(block=False)
+    # plt.show(block=False)
     plt.savefig(f"{outdir}/plot.png")
 
 
@@ -74,6 +74,7 @@ def handler(sig, frame):
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handler)
+signal.signal(signal.SIGTERM, handler)
 
 
 
@@ -98,36 +99,68 @@ class DQN(nn.Module):
 
     def __init__(self, inputs, outputs):
         super(DQN, self).__init__()
-        self.fc1 = nn.Linear(inputs, 128)
-        self.fc2 = nn.Linear(128, 256)
 
-        self.lin1 = nn.Linear(256, 256)
-        self.lin2 = nn.Linear(256, 256)
-        self.lin3 = nn.Linear(256, 256)
-        self.lin4 = nn.Linear(256, 256)
-        self.lin5 = nn.Linear(256, 256)
+        # default net 
+        self.fc1 = nn.Linear(inputs, 64)
+        self.fc2 = nn.Linear(64, 128)
+        self.fc3 = nn.Linear(128, 64)
+        self.head = nn.Linear(64, outputs)
+        # end default net
 
-        self.fc4 = nn.Linear(256, 128)
-        self.fc5 = nn.Linear(128, 64)
-        self.fc6 = nn.Linear(64, 32)
-        self.head = nn.Linear(32, outputs)
+        # self.drop1 = nn.Dropout(0.5)
+
+        # self.fc1 = nn.Linear(inputs, 128)
+        # # self.bn1 = nn.BatchNorm1d(128)
+        # self.fc2 = nn.Linear(128, 256)
+        # # self.bn2 = nn.BatchNorm1d(256)
+
+        # self.lin1 = nn.Linear(256, 256)
+        # # self.bn3 = nn.BatchNorm1d(256)
+        # self.lin2 = nn.Linear(256, 256)
+
+        # self.fc4 = nn.Linear(256, 128)
+        # self.fc5 = nn.Linear(128, 64)
+        # # self.bn4 = nn.BatchNorm1d(64)
+        # self.fc6 = nn.Linear(64, 32)
+        # # self.bn5 = nn.BatchNorm1d(32)
+        # self.head = nn.Linear(32, outputs)
 
     # Called with either one element to determine next action, or a batch
     # during optimization. Returns tensor([[left0exp,right0exp]...]).
     def forward(self, x):
+        
+        # default net
         x = x.to(device)
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        # end default net
 
-        x = F.relu(self.lin1(x))
-        x = F.relu(self.lin2(x))
-        x = F.relu(self.lin3(x))
-        x = F.relu(self.lin4(x))
-        x = F.relu(self.lin5(x))
+        
+        # x = x.to(device)
+        # x = F.relu(self.fc1(x))
+        # x = self.drop1(x)
+        # # x = self.bn1(x)
+        # x = F.relu(self.fc2(x))
+        # x = self.drop1(x)
+        # # x = self.bn2(x)
 
-        x = F.relu(self.fc4(x))
-        x = F.relu(self.fc5(x))
-        x = F.relu(self.fc6(x))
+        # x = F.relu(self.lin1(x))
+        # x = self.drop1(x)
+        # # x = self.bn3(x)
+        # x = F.relu(self.lin2(x))
+        # x = self.drop1(x)
+        # # x = self.bn3(x)
+
+
+        # x = F.relu(self.fc4(x))
+        # x = F.relu(self.drop1(x))
+        # # x = self.bn1(x)
+        # x = F.relu(self.fc5(x))
+        # x = F.relu(self.drop1(x))
+        # # x = self.bn4(x)
+        # x = F.relu(self.fc6(x))
+        # # x = self.bn5(x)
         return self.head(x)
 
 
