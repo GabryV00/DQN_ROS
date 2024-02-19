@@ -44,24 +44,41 @@ def save_data():
         json.dump(dictionary, f)
 
     min_rew = min(reward_for_episode)
-    reward_for_episode = [x - min_rew for x in reward_for_episode]
-
+    scaled_reward_for_episode = [x - min_rew for x in reward_for_episode]
+    
 
     unit = round(len(reward_for_episode)/10)
     x_values = [i*unit for i in range(1,11)]
 
     fig, ax = plt.subplots(3)
-    ax[0].plot(range(1,len(reward_for_episode)+1), reward_for_episode, color="blue")
+    ax[0].plot(range(1,len(scaled_reward_for_episode)+1), scaled_reward_for_episode, color="blue")
     ax[0].set_title("Reward for episode")
 
-    ax[1].plot(range(1,len(reward_for_episode)+1), last_time_steps, color="orange")
+    ax[1].plot(range(1,len(scaled_reward_for_episode)+1), last_time_steps, color="orange")
     ax[1].set_title("Last time per episode")
 
-    ax[2].plot(range(1,len(reward_for_episode)+1), reward_for_episode, color="blue")
-    ax[2].plot(range(1,len(reward_for_episode)+1), last_time_steps, color="orange")
+    ax[2].plot(range(1,len(scaled_reward_for_episode)+1), scaled_reward_for_episode, color="blue")
+    ax[2].plot(range(1,len(scaled_reward_for_episode)+1), last_time_steps, color="orange")
 
     ax[2].set_title("Combined plots")
     plt.setp(ax, xticks=x_values)
+    plt.tight_layout()
+
+    # plt.show(block=False)
+    plt.savefig(f"{outdir}/scaled_plot.png")
+
+    fig2, ax2 = plt.subplots(3)
+    ax2[0].plot(range(1,len(scaled_reward_for_episode)+1), scaled_reward_for_episode, color="blue")
+    ax2[0].set_title("Reward for episode")
+
+    ax2[1].plot(range(1,len(scaled_reward_for_episode)+1), last_time_steps, color="orange")
+    ax2[1].set_title("Last time per episode")
+
+    ax2[2].plot(range(1,len(scaled_reward_for_episode)+1), scaled_reward_for_episode, color="blue")
+    ax2[2].plot(range(1,len(scaled_reward_for_episode)+1), last_time_steps, color="orange")
+
+    ax2[2].set_title("Combined plots")
+    plt.setp(ax2, xticks=x_values)
     plt.tight_layout()
 
     # plt.show(block=False)
