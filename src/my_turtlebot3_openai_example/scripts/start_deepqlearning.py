@@ -15,7 +15,7 @@ import os
 
 import time
 from gym import wrappers
-# from stable_baselines3.common.monitor import Monitor
+
 # ROS packages required
 import rospy
 import rospkg
@@ -32,6 +32,9 @@ last_time_steps = numpy.ndarray(0)
 
 
 def save_data():
+    """
+    Function for saving data and creating plots
+    """
     global reward_for_episode, last_time_steps
 
     timestamp = str(datetime.datetime.now()).replace(' ', '_')
@@ -117,21 +120,12 @@ class DQN(nn.Module):
     def __init__(self, inputs, outputs):
         super(DQN, self).__init__()
 
-        # default net 
-        # self.fc1 = nn.Linear(inputs, 64)
-        # self.fc2 = nn.Linear(64, 128)
-        # self.fc3 = nn.Linear(128, 64)
-        # self.head = nn.Linear(64, outputs)
-        # end default net
-
         self.fc1 = nn.Linear(inputs, 64)
         self.fc2 = nn.Linear(64, 128)
         self.fc3 = nn.Linear(128, 256)
         self.fc4 = nn.Linear(256, 128)
         self.fc5 = nn.Linear(128, 64)
         self.head = nn.Linear(64, outputs)
-
-        self.drop1 = nn.Dropout(0.5)
 
 
     # Called with either one element to determine next action, or a batch
@@ -140,16 +134,9 @@ class DQN(nn.Module):
         
         x = x.to(device)
 
-        # default net
-        # x = F.relu(self.fc1(x))
-        # x = F.relu(self.fc2(x))
-        # x = F.relu(self.fc3(x))
-        # end default net
-
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
         x = F.relu(self.fc3(x))
-        # x = self.drop1(x)
         x = F.relu(self.fc4(x))
         x = F.relu(self.fc5(x))
         
@@ -220,8 +207,6 @@ def optimize_model(batch_size, gamma):
 
 
 
-
-
 # import our training environment
 if __name__ == '__main__':
     reward_for_episode = []
@@ -241,9 +226,6 @@ if __name__ == '__main__':
     # Set the logging system
     rospack = rospkg.RosPack()
     pkg_path = rospack.get_path('my_turtlebot3_openai_example')
-    # outdir = pkg_path + '/training_results'
-    #env = wrappers.Monitor(env, outdir, force=True)
-    #env = Monitor(env, outdir, allow_early_resets=True)
     rospy.loginfo("Monitor Wrapper started")
 
 
@@ -269,7 +251,7 @@ if __name__ == '__main__':
 
     # Get number of actions from gym action space
     n_actions = env.action_space.n
-    n_observations = 120 #PARAMETRO CHE DEVE ESSERE UGUALE A QUELLO IN /src/openai_ros/openai_ros/src/openai_ros/task_envs/turtlebot3/config/turtlebot3_world.yaml
+    n_observations = 120 #THIS PARAMETER MUST BE EQUAL TO THE ONE IN /src/openai_ros/openai_ros/src/openai_ros/task_envs/turtlebot3/config/turtlebot3_world.yaml
 
     # initialize networks with input and output sizes
     policy_net = DQN(n_observations, n_actions).to(device)
@@ -299,12 +281,7 @@ if __name__ == '__main__':
         # Initialize the environment and get first state of the robot
         observation = env.reset()
 
-        # resize observations to pass it to the net
-        #observation = numpy.array(observation)
-        #observation.resize((1,n_observations), refcheck=False)
-
         state = torch.tensor(observation, device=device, dtype=torch.float)
-        #state = ''.join(map(str, observation))
 
         for t in count():
             rospy.logwarn("############### Start Step=>" + str(t))
@@ -320,7 +297,6 @@ if __name__ == '__main__':
 
             reward = torch.tensor([reward], device=device)
 
-            #next_state = ''.join(map(str, observation))
             next_state = torch.tensor(observation, device=device, dtype=torch.float)
 
             # Store the transition in memory
@@ -366,10 +342,5 @@ if __name__ == '__main__':
     l = last_time_steps.tolist()
     l.sort()
     save_data()
-
-
-    # print("Parameters: a="+str)
-    # rospy.loginfo("Overall score: {:0.2f}".format(last_time_steps.mean()))
-    # rospy.loginfo("Best 100 score: {:0.2f}".format(reduce(lambda x, y: x + y, l[-100:]) / len(l[-100:])))
 
     env.close()
