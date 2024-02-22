@@ -12,3 +12,7 @@ The project consists of the following files:
   * `plot.png` image containing the three plots relating to cumulative reward and total time, with the data not normalized
   * `plot-std.png` image containing the three plots relating to cumulative reward and total time, with the normalized data
   * `results-date.json` file containing all the parameters used in the experiment, plus the results obtained
+
+## Documentation
+
+The project contains also `RobotControl_slides.pdf` which is a presentation that describe that work done in this project
